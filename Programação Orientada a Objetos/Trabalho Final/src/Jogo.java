@@ -132,8 +132,11 @@ public class Jogo {
         }
         return false;
     }
+
+    // MÉTODOS GETTERS
     public Jogador getJogadorAtual() { return jogadores.get(indiceAtual); }
     public Carta getTopoDescarte() { return descarte.get(descarte.size() - 1); }
     public Cor getCorAtual() { return corAtual; }
+    public Baralho getBaralho() {return baralho;}
     public int getQuantidadeJogadores() {return jogadores.size();}
 }

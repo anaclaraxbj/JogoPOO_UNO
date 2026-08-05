@@ -4,18 +4,24 @@ import java.util.*;
 public class Jogador {
     private String nome;
     private ArrayList<Carta> mao = new ArrayList<>();
+    private boolean disseUno = false;
 
     public Jogador(String nome) {
         this.nome = nome;
     }
 
-    //Métodos GETTERS
+    //Métodos GETTERS e SET
     public String getNome() {return nome;}
     public ArrayList<Carta> getMao() {return mao;}
+    public boolean isDisseUno() { return disseUno; }
+    public void setDisseUno(boolean disseUno) { this.disseUno = disseUno; }
 
     public void adicionarCarta(Carta c) {
         if (c != null) {
             mao.add(c);
+            if (mao.size() > 1) {
+                this.disseUno = false;
+            }
         }
     }
 

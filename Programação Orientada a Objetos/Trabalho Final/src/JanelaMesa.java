@@ -8,6 +8,7 @@ public class JanelaMesa {
     private JFrame janela; // A moldura principal da janela do Windows/Mac
     private JPanel painelMao; // Onde as cartas do jogador vão ficar organizadas
     private JLabel textoInfo; // O texto de informações no topo da tela
+    private JButton botaoUno;
 
     public JanelaMesa(Jogo jogo) {
         this.jogo = jogo;
@@ -29,7 +30,7 @@ public class JanelaMesa {
         //Botões de Ação
         JPanel painelAcoes = new JPanel(new FlowLayout());
         JButton botaoComprar = new JButton("Comprar Carta");
-        JButton botaoUno = new JButton("Gritar UNO!");
+        botaoUno = new JButton("Gritar UNO!");
         JButton botaoRender = new JButton("Render-se/Sair");
 
         // EVENTOS
@@ -38,8 +39,16 @@ public class JanelaMesa {
             atualizarTela();
         });
 
+
         botaoUno.addActionListener(e -> {
-            JOptionPane.showMessageDialog(janela, "ATENÇÃO: O jogador " + jogo.getJogadorAtual().getNome() + " gritou UNO!");
+            Jogador atual = jogo.getJogadorAtual();
+
+            // O jogador pode gritar UNO quando estiver com 2 ou 1 carta na mão
+            if (atual.getMao().size() <= 2) {
+                atual.setDisseUno(true);
+                JOptionPane.showMessageDialog(janela, "🗣ATENÇÃO: O jogador " + atual.getNome() + " gritou UNO!");
+                atualizarTela();
+            }
         });
 
         botaoRender.addActionListener(e -> {
@@ -66,6 +75,14 @@ public class JanelaMesa {
         janela.setVisible(true);
     }
 
+    private String traduzirCorParaNaipe(Cor cor) {
+        if (cor == Cor.VERMELHO) return "Vermelho (Copas ♥)";
+        if (cor == Cor.AMARELO) return "Amarelo (Ouros ♦)";
+        if (cor == Cor.VERDE) return "Verde (Paus ♣)";
+        if (cor == Cor.AZUL) return "Azul (Espadas ♠)";
+        return "Nenhuma";
+    }
+
     private void atualizarTela() {
         // MENSAGEM DE VITÓRIA FICA AQUI: Ocorre assim que as cartas acabam
         if (jogo.verificarVitoria()) {
@@ -77,7 +94,10 @@ public class JanelaMesa {
         Carta topo = jogo.getTopoDescarte();
         Jogador atual = jogo.getJogadorAtual();
 
-        textoInfo.setText("Vez de: " + atual.getNome() + "  |  Topo: [" + topo.getNomeVisual() + "]  |  Cor Valida: " + jogo.getCorAtual());
+
+        textoInfo.setText("Vez de: " + atual.getNome() +
+                "  |  Topo: [" + topo.getNomeVisual() + "] " +
+                "  |  Cor Valida: " + traduzirCorParaNaipe(jogo.getCorAtual()));
 
         painelMao.removeAll();
 
@@ -127,13 +147,41 @@ public class JanelaMesa {
 
             botaoCarta.addActionListener(e -> {
                 if (jogo.validarJogada(c)) {
+
+                    Jogador jogadorQueJogou = jogo.getJogadorAtual();
+
                     jogo.jogarCarta(atual, c);
 
+                    if (jogadorQueJogou.getMao().size() == 1 && !jogadorQueJogou.isDisseUno()) {
+                        JOptionPane.showMessageDialog(janela,
+                                "PENALIDADE! O jogador " + jogadorQueJogou.getNome() +
+                                        " ficou com 1 carta e NÃO gritou UNO!\nComprou +2 cartas de penalidade.",
+                                "Pego no UNO!",
+                                JOptionPane.WARNING_MESSAGE);
+
+                        // Força a compra das 2 cartas de punição
+                        for (int k = 0; k < 2; k++) {
+                            jogadorQueJogou.adicionarCarta(jogo.getBaralho().comprarCarta());
+                        }
+                    }
+
                     if (c.getCor() == Cor.ESPECIAL) {
-                        Cor[] opcoes = {Cor.VERMELHO, Cor.AZUL, Cor.VERDE, Cor.AMARELO};
-                        Cor escolhida = (Cor) JOptionPane.showInputDialog(janela, "Escolha a nova cor:", "Coringa", JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
-                        if (escolhida != null) {
-                            jogo.setCorAtual(escolhida);
+                        // Array de Strings bem claras para o usuário ler
+                        String[] opcoes = {
+                                "Vermelho (Copas ♥)",
+                                "Azul (Espadas ♠)",
+                                "Verde (Paus ♣)",
+                                "Amarelo (Ouros ♦)"
+                        };
+
+                        String escolhaString = (String) JOptionPane.showInputDialog(janela, "Escolha a nova cor ou naipe:", "Coringa", JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
+
+                        if (escolhaString != null) {
+                            // Converte a String escolhida de volta para o Enum que a lógica do jogo entende
+                            if (escolhaString.contains("♥")) jogo.setCorAtual(Cor.VERMELHO);
+                            else if (escolhaString.contains("♠")) jogo.setCorAtual(Cor.AZUL);
+                            else if (escolhaString.contains("♣")) jogo.setCorAtual(Cor.VERDE);
+                            else if (escolhaString.contains("♦")) jogo.setCorAtual(Cor.AMARELO);
                         }
                     }
                     atualizarTela();
@@ -142,6 +190,12 @@ public class JanelaMesa {
                 }
             });
             painelMao.add(botaoCarta);
+        }
+
+        if (atual.getMao().size() <= 2 && !atual.isDisseUno()) {
+            botaoUno.setEnabled(true);
+        } else {
+            botaoUno.setEnabled(false);
         }
 
         painelMao.revalidate();
