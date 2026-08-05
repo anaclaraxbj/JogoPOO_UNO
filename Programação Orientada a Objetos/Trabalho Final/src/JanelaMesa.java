@@ -1,92 +1,68 @@
-/** Onde acontece a interface gráfica, ela apenas repassa os cliques e atualiza a tela **/
-
 import javax.swing.*;
 import java.awt.*;
 
 public class JanelaMesa {
     private Jogo jogo;
-    private JFrame janela; // A moldura principal da janela do Windows/Mac
-    private JPanel painelMao; // Onde as cartas do jogador vão ficar organizadas
-    private JLabel textoInfo; // O texto de informações no topo da tela
-    private JButton botaoUno;
+    private JFrame janela;
+    private JPanel painelMao;
+    private JLabel lblInfo;
+    private JButton btnUno;
+    private JButton btnComprar;
 
     public JanelaMesa(Jogo jogo) {
         this.jogo = jogo;
 
-        // Configuração básica da janela principal
         janela = new JFrame("Mesa de UNO");
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         janela.setSize(1300, 500);
-
-        // Divide a tela em regiões
         janela.setLayout(new BorderLayout());
-        textoInfo = new JLabel("", SwingConstants.CENTER);
-        janela.add(textoInfo, BorderLayout.NORTH);
 
-        // Organiza os intens um ao lado do outro
+        lblInfo = new JLabel("", SwingConstants.CENTER);
+        janela.add(lblInfo, BorderLayout.NORTH);
+
         painelMao = new JPanel(new FlowLayout());
         janela.add(painelMao, BorderLayout.CENTER);
 
-        //Botões de Ação
         JPanel painelAcoes = new JPanel(new FlowLayout());
-        JButton botaoComprar = new JButton("Comprar Carta");
-        botaoUno = new JButton("Gritar UNO!");
-        JButton botaoRender = new JButton("Render-se/Sair");
+        btnComprar = new JButton("Comprar Carta");
+        btnUno = new JButton("Gritar UNO!");
+        JButton btnRender = new JButton("Sair da Partida");
 
-        // EVENTOS
-        botaoComprar.addActionListener(e -> {
-            jogo.comprarCartaAtual();
+        btnComprar.addActionListener(e -> {
+            Carta comprada = jogo.comprarCartaAtual();
+            if (comprada != null) {
+                JOptionPane.showMessageDialog(janela,
+                        "Você comprou a carta:\n[" + comprada.getNomeVisual() + "]",
+                        "Carta Comprada",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
             atualizarTela();
         });
 
-
-        botaoUno.addActionListener(e -> {
-            Jogador atual = jogo.getJogadorAtual();
-
-            // O jogador pode gritar UNO quando estiver com 2 ou 1 carta na mão
-            if (atual.getMao().size() <= 2) {
-                atual.setDisseUno(true);
-                JOptionPane.showMessageDialog(janela, "🗣ATENÇÃO: O jogador " + atual.getNome() + " gritou UNO!");
-                atualizarTela();
-            }
+        btnUno.addActionListener(e -> {
+            jogo.setGritouUno(true);
+            btnUno.setEnabled(false);
+            JOptionPane.showMessageDialog(janela, jogo.getJogadorAtual().getNome() + " gritou UNO!");
         });
 
-        botaoRender.addActionListener(e -> {
+        btnRender.addActionListener(e -> {
             Jogador atual = jogo.getJogadorAtual();
-            // Pergunta aos outros se aceitam
-            int resposta = JOptionPane.showConfirmDialog(janela,
-                    "O jogador " + atual.getNome() + " pediu rendição. Os adversários aceitam?",
-                    "Pedido de Rendição", JOptionPane.YES_NO_OPTION);
-
-            if (resposta == JOptionPane.YES_OPTION) {
-                JOptionPane.showMessageDialog(janela, "Rendição aceita! Partida encerrada.");
-                janela.dispose(); // Fecha o jogo
-            } else {
-                JOptionPane.showMessageDialog(janela, "Rendição recusada! A partida continua.");
-            }
+            JOptionPane.showMessageDialog(janela, "O jogador " + atual.getNome() + " desistiu da partida.\nPor isso, o jogo será encerrado.");
+            janela.dispose();
         });
 
-        painelAcoes.add(botaoComprar);
-        painelAcoes.add(botaoUno);
-        painelAcoes.add(botaoRender);
+        painelAcoes.add(btnComprar);
+        painelAcoes.add(btnUno);
+        painelAcoes.add(btnRender);
         janela.add(painelAcoes, BorderLayout.SOUTH);
 
         atualizarTela();
         janela.setVisible(true);
     }
 
-    private String traduzirCorParaNaipe(Cor cor) {
-        if (cor == Cor.VERMELHO) return "Vermelho (Copas ♥)";
-        if (cor == Cor.AMARELO) return "Amarelo (Ouros ♦)";
-        if (cor == Cor.VERDE) return "Verde (Paus ♣)";
-        if (cor == Cor.AZUL) return "Azul (Espadas ♠)";
-        return "Nenhuma";
-    }
-
     private void atualizarTela() {
-        // MENSAGEM DE VITÓRIA FICA AQUI: Ocorre assim que as cartas acabam
         if (jogo.verificarVitoria()) {
-            JOptionPane.showMessageDialog(janela, "FIM DE JOGO! O jogador " + jogo.getVencedor().getNome() + " VENCEU A PARTIDA!");
+            JOptionPane.showMessageDialog(janela, "FIM DE JOGO! O jogador " + jogo.getJogadorAtual().getNome() + " VENCEU A PARTIDA!");
             janela.dispose();
             return;
         }
@@ -94,108 +70,127 @@ public class JanelaMesa {
         Carta topo = jogo.getTopoDescarte();
         Jogador atual = jogo.getJogadorAtual();
 
+        boolean isMesaConvencional = topo.getNomeVisual().contains("♥") ||
+                topo.getNomeVisual().contains("♦") ||
+                topo.getNomeVisual().contains("♣") ||
+                topo.getNomeVisual().contains("♠") ||
+                topo.getNomeVisual().contains("Joker");
 
-        textoInfo.setText("Vez de: " + atual.getNome() +
-                "  |  Topo: [" + topo.getNomeVisual() + "] " +
-                "  |  Cor Valida: " + traduzirCorParaNaipe(jogo.getCorAtual()));
+        String corFormatada = jogo.getCorAtual().toString();
+        if (isMesaConvencional && jogo.getCorAtual() != Cor.ESPECIAL) {
+            if (jogo.getCorAtual() == Cor.VERMELHO) corFormatada = "Vermelho (Copas ♥)";
+            else if (jogo.getCorAtual() == Cor.AZUL) corFormatada = "Azul (Espadas ♠)";
+            else if (jogo.getCorAtual() == Cor.VERDE) corFormatada = "Verde (Paus ♣)";
+            else if (jogo.getCorAtual() == Cor.AMARELO) corFormatada = "Amarelo (Ouros ♦)";
+        }
+
+        if (jogo.getDeficitCartas() > 0) {
+            lblInfo.setText("Vez de: " + atual.getNome() + "  |  Topo: [" + topo.getNomeVisual() + "]  |  Cor Valida: " + corFormatada + "  |  DÉBITO: " + jogo.getDeficitCartas() + " cartas");
+            btnComprar.setText("Comprar (" + jogo.getDeficitCartas() + " restantes)");
+            btnComprar.setForeground(Color.RED);
+        } else {
+            lblInfo.setText("Vez de: " + atual.getNome() + "  |  Topo: [" + topo.getNomeVisual() + "]  |  Cor Valida: " + corFormatada);
+            btnComprar.setText("Comprar Carta");
+            btnComprar.setForeground(Color.BLACK);
+        }
 
         painelMao.removeAll();
+
+        boolean podeGritar = false;
+        if (atual.getMao().size() == 2) {
+            for (Carta c : atual.getMao()) {
+                if (jogo.validarJogada(c)) {
+                    podeGritar = true;
+                    break;
+                }
+            }
+        }
+        btnUno.setEnabled(podeGritar && !jogo.isGritouUno());
 
         for (int i = 0; i < atual.getMao().size(); i++) {
             Carta c = atual.getMao().get(i);
             String nome = c.getNomeVisual();
 
-            JButton botaoCarta = new JButton("<html><center>" + nome.replace(" ", "<br>") + "</center></html>");
+            JButton btnCarta = new JButton("<html><center>" + nome.replace(" ", "<br>") + "</center></html>");
+            btnCarta.setPreferredSize(new Dimension(150, 220));
+            btnCarta.setFont(new Font("Arial", Font.BOLD, 14));
+            btnCarta.setFocusPainted(false);
 
-            botaoCarta.setPreferredSize(new Dimension(150, 220));
-            botaoCarta.setFont(new Font("Arial", Font.BOLD, 14));
-            botaoCarta.setFocusPainted(false);
-
-            // Verifica se é uma carta do baralho convencional pelos símbolos ou nome Joker
-            boolean convencional = nome.contains("♥") || nome.contains("♦") ||
+            boolean isConvencional = nome.contains("♥") || nome.contains("♦") ||
                     nome.contains("♣") || nome.contains("♠") ||
                     nome.contains("Joker");
 
-            if (convencional) {
-                botaoCarta.setBackground(Color.WHITE); // Fundo branco exigido
-
-                // Copas, Ouros e o Joker +4 ficam vermelhos. O resto fica preto.
+            if (isConvencional) {
+                btnCarta.setBackground(Color.WHITE);
                 if (nome.contains("♥") || nome.contains("♦") || nome.contains("+4")) {
-                    botaoCarta.setForeground(Color.RED);
+                    btnCarta.setForeground(Color.RED);
                 } else {
-                    botaoCarta.setForeground(Color.BLACK);
+                    btnCarta.setForeground(Color.BLACK);
                 }
             } else {
-                // Visual original mantido intacto para o UNO Oficial
                 if (c.getCor() == Cor.VERMELHO) {
-                    botaoCarta.setBackground(Color.RED);
-                    botaoCarta.setForeground(Color.WHITE);
+                    btnCarta.setBackground(Color.RED);
+                    btnCarta.setForeground(Color.WHITE);
                 } else if (c.getCor() == Cor.AZUL) {
-                    botaoCarta.setBackground(Color.BLUE);
-                    botaoCarta.setForeground(Color.WHITE);
+                    btnCarta.setBackground(Color.BLUE);
+                    btnCarta.setForeground(Color.WHITE);
                 } else if (c.getCor() == Cor.VERDE) {
-                    botaoCarta.setBackground(Color.GREEN);
-                    botaoCarta.setForeground(Color.BLACK);
+                    btnCarta.setBackground(Color.GREEN);
+                    btnCarta.setForeground(Color.BLACK);
                 } else if (c.getCor() == Cor.AMARELO) {
-                    botaoCarta.setBackground(Color.YELLOW);
-                    botaoCarta.setForeground(Color.BLACK);
+                    btnCarta.setBackground( Color.YELLOW);
+                    btnCarta.setForeground(Color.BLACK);
                 } else {
-                    botaoCarta.setBackground(Color.DARK_GRAY);
-                    botaoCarta.setForeground(Color.WHITE);
+                    btnCarta.setBackground(Color.DARK_GRAY);
+                    btnCarta.setForeground(Color.WHITE);
                 }
             }
 
-            botaoCarta.addActionListener(e -> {
+            btnCarta.addActionListener(e -> {
                 if (jogo.validarJogada(c)) {
 
-                    Jogador jogadorQueJogou = jogo.getJogadorAtual();
+                    boolean tinhaDuasCartas = (atual.getMao().size() == 2);
+                    boolean tinhaGritado = jogo.isGritouUno();
 
                     jogo.jogarCarta(atual, c);
 
-                    if (jogadorQueJogou.getMao().size() == 1 && !jogadorQueJogou.isDisseUno()) {
-                        JOptionPane.showMessageDialog(janela,
-                                "PENALIDADE! O jogador " + jogadorQueJogou.getNome() +
-                                        " ficou com 1 carta e NÃO gritou UNO!\nComprou +2 cartas de penalidade.",
-                                "Pego no UNO!",
-                                JOptionPane.WARNING_MESSAGE);
-
-                        // Força a compra das 2 cartas de punição
-                        for (int k = 0; k < 2; k++) {
-                            jogadorQueJogou.adicionarCarta(jogo.getBaralho().comprarCarta());
-                        }
-                    }
-
                     if (c.getCor() == Cor.ESPECIAL) {
-                        // Array de Strings bem claras para o usuário ler
-                        String[] opcoes = {
-                                "Vermelho (Copas ♥)",
-                                "Azul (Espadas ♠)",
-                                "Verde (Paus ♣)",
-                                "Amarelo (Ouros ♦)"
-                        };
+                        String[] opcoes = isMesaConvencional
+                                ? new String[]{"Vermelho (Copas ♥)", "Azul (Espadas ♠)", "Verde (Paus ♣)", "Amarelo (Ouros ♦)"}
+                                : new String[]{"VERMELHO", "AZUL", "VERDE", "AMARELO"};
 
-                        String escolhaString = (String) JOptionPane.showInputDialog(janela, "Escolha a nova cor ou naipe:", "Coringa", JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
+                        String escolhidaNome = null;
 
-                        if (escolhaString != null) {
-                            // Converte a String escolhida de volta para o Enum que a lógica do jogo entende
-                            if (escolhaString.contains("♥")) jogo.setCorAtual(Cor.VERMELHO);
-                            else if (escolhaString.contains("♠")) jogo.setCorAtual(Cor.AZUL);
-                            else if (escolhaString.contains("♣")) jogo.setCorAtual(Cor.VERDE);
-                            else if (escolhaString.contains("♦")) jogo.setCorAtual(Cor.AMARELO);
+                        while (escolhidaNome == null) {
+                            escolhidaNome = (String) JOptionPane.showInputDialog(janela,
+                                    "Escolha a nova cor ou naipe:",
+                                    "Coringa",
+                                    JOptionPane.QUESTION_MESSAGE,
+                                    null,
+                                    opcoes,
+                                    opcoes[0]);
                         }
+
+                        Cor escolhida = null;
+                        if (escolhidaNome.contains("Vermelho") || escolhidaNome.equals("VERMELHO")) escolhida = Cor.VERMELHO;
+                        else if (escolhidaNome.contains("Azul") || escolhidaNome.equals("AZUL")) escolhida = Cor.AZUL;
+                        else if (escolhidaNome.contains("Verde") || escolhidaNome.equals("VERDE")) escolhida = Cor.VERDE;
+                        else if (escolhidaNome.contains("Amarelo") || escolhidaNome.equals("AMARELO")) escolhida = Cor.AMARELO;
+
+                        jogo.setCorAtual(escolhida);
                     }
+
+                    if (tinhaDuasCartas && atual.getMao().size() == 1 && !tinhaGritado) {
+                        JOptionPane.showMessageDialog(janela, "Você esqueceu de gritar UNO! Penalidade: +2 cartas.");
+                        jogo.punirFaltaDeUno(atual);
+                    }
+
                     atualizarTela();
                 } else {
                     JOptionPane.showMessageDialog(janela, "Jogada Inválida! Escolha outra ou compre.");
                 }
             });
-            painelMao.add(botaoCarta);
-        }
-
-        if (atual.getMao().size() <= 2 && !atual.isDisseUno()) {
-            botaoUno.setEnabled(true);
-        } else {
-            botaoUno.setEnabled(false);
+            painelMao.add(btnCarta);
         }
 
         painelMao.revalidate();

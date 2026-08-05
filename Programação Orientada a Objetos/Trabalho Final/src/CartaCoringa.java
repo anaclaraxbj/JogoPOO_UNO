@@ -7,10 +7,10 @@ public class CartaCoringa extends Carta {
     @Override
     public void aplicarEfeito(Jogo contexto) {
         if (this.valor == Valor.CORINGA_MAIS_QUATRO) {
-            contexto.fazerProximoComprar(4); // Força o jogador a comprar 4 cartas
-            contexto.pularProximo(); // Pula a vez de quem comprou as 4 cartas
+            contexto.adicionarDeficit(4);
+            contexto.avancarTurno(); // Passa a bomba para o próximo
         } else {
-            contexto.avancarTurno(); // Coringa normal apenas passa a vez
+            contexto.avancarTurno();
         }
     }
 }
