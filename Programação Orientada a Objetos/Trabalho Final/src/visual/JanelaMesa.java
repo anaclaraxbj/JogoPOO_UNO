@@ -1,3 +1,10 @@
+package visual;
+
+import modelo.Carta;
+import modelo.Cor;
+import modelo.Jogador;
+import controle.Jogo;
+
 import javax.swing.*;
 import java.awt.*;
 

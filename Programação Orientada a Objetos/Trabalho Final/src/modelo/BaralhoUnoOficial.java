@@ -1,3 +1,5 @@
+package modelo;
+
 /** Esse é o Baralho do UNO feito com o molde da classe Baralho **/
 public class BaralhoUnoOficial extends Baralho {
 
@@ -9,7 +11,7 @@ public class BaralhoUnoOficial extends Baralho {
         //Para cada cor é criada uma carta existente nessa cor
         for (Cor c : cores) {
 
-            // A carta 0 está fora do próximo laço for porque no UNO existe apenas 1 carta com número 0 no Baralho
+            // A carta 0 está fora do próximo laço for porque no UNO existe apenas 1 carta com número 0 no modelo.Baralho
             cartas.add(new CartaNormal(c, Valor.ZERO, c + " 0"));
 
             Valor[] valores = {Valor.UM, Valor.DOIS, Valor.TRES, Valor.QUATRO, Valor.CINCO, Valor.SEIS, Valor.SETE, Valor.OITO, Valor.NOVE};

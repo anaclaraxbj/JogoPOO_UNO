@@ -1,3 +1,7 @@
+package controle;
+
+import modelo.*;
+
 import java.util.ArrayList;
 
 public class Jogo {
@@ -10,7 +14,7 @@ public class Jogo {
     private Cor corAtual;
 
     private boolean gritouUno = false;
-    private int deficitCartas = 0; // Controla o acúmulo de +2 e +4
+    private int deficitCartas = 0; // para ter acúmulo de +2 e +4
 
     public Jogo(Baralho baralho) {
         this.baralho = baralho;
@@ -38,9 +42,9 @@ public class Jogo {
     }
 
     public boolean validarJogada(Carta c) {
-        // REGRA DE EMPILHAR: Se o jogador está sofrendo um ataque (+2 ou +4)
+        // regra de acumular: quando sofrendo ataqu (+2 ou +4)
         if (deficitCartas > 0) {
-            // Só pode rebater com outro +4, ou com um +2 que seja da mesma cor exigida
+            // pode empilhar outro +4, ou um +2 que seja da mesma cor exigida
             if (c.getValor() == Valor.CORINGA_MAIS_QUATRO) return true;
             if (c.getValor() == Valor.MAIS_DOIS && c.getCor() == corAtual) return true;
             return false;
@@ -79,7 +83,7 @@ public class Jogo {
         return comprada; // Retorna a carta para a interface gráfica
     }
 
-    // --- MÉTODOS DE CONTROLE ---
+
 
     public void avancarTurno() {
         gritouUno = false;
@@ -118,7 +122,7 @@ public class Jogo {
     public void escolherNovaCor() { }
     public void setCorAtual(Cor c) { this.corAtual = c; }
 
-    // --- GETTERS E SETTERS ---
+    // get & set
     public Jogador getJogadorAtual() { return jogadores.get(indiceAtual); }
     public Carta getTopoDescarte() { return descarte.get(descarte.size() - 1); }
     public Cor getCorAtual() { return corAtual; }

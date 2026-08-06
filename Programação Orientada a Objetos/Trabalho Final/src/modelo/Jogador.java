@@ -1,3 +1,5 @@
+package modelo;
+
 import java.util.*;
 
 // Um jogador tem um nome e as cartas que ele esta segurando na mão.
@@ -10,7 +12,7 @@ public class Jogador {
         this.nome = nome;
     }
 
-    //Métodos GETTERS e SET
+    //getters e setters
     public String getNome() {return nome;}
     public ArrayList<Carta> getMao() {return mao;}
     public boolean isDisseUno() { return disseUno; }

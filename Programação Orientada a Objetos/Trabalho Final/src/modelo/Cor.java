@@ -1,3 +1,5 @@
+package modelo;
+
 /**Estamos usando ENUM em vez de String para garantir a segurança dos tipos. **/
 public enum Cor {
 

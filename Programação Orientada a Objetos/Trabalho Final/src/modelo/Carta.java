@@ -1,3 +1,7 @@
+package modelo;
+
+import controle.Jogo;
+
 /** Usamos a classe abstrata como Carta, para que ela possa criar os outros tipos de cartas **/
 public abstract class Carta {
     protected Cor cor;

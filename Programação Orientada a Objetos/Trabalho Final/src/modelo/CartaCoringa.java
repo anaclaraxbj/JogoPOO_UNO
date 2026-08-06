@@ -1,3 +1,7 @@
+package modelo;
+
+import controle.Jogo;
+
 public class CartaCoringa extends Carta {
 
     public CartaCoringa(Cor cor, Valor valor, String nomeVisual) {
@@ -8,7 +12,7 @@ public class CartaCoringa extends Carta {
     public void aplicarEfeito(Jogo contexto) {
         if (this.valor == Valor.CORINGA_MAIS_QUATRO) {
             contexto.adicionarDeficit(4);
-            contexto.avancarTurno(); // Passa a bomba para o próximo
+            contexto.avancarTurno(); // Passa o debito para o proximo
         } else {
             contexto.avancarTurno();
         }

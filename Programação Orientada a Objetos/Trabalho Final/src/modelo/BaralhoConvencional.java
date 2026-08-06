@@ -1,4 +1,6 @@
-/** Esse é o Baralho Convencional feito com o molde da classe Baralho **/
+package modelo;
+
+/** Esse é o modelo.Baralho Convencional feito com o molde da classe modelo.Baralho **/
 public class BaralhoConvencional extends Baralho {
     @Override
     protected void criarCartas() {

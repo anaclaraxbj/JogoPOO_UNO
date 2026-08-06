@@ -1,3 +1,7 @@
+package modelo;
+
+import controle.Jogo;
+
 public class CartaAcao extends Carta {
 
     public CartaAcao(Cor cor, Valor valor, String nomeVisual) {
@@ -19,7 +23,7 @@ public class CartaAcao extends Carta {
         }
         else if (this.valor == Valor.MAIS_DOIS) {
             contexto.adicionarDeficit(2);
-            contexto.avancarTurno(); // Passa a bomba para o próximo
+            contexto.avancarTurno();
         }
     }
 }

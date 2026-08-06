@@ -1,20 +1,21 @@
-/** Usamos a classe abstrata como Baralho, para que ela possa criar os outros tipos de baralhos **/
+package modelo;
+
 import java.util.*;
 
-// Um baralho tem uma pilha de cartas
+//classe abstrata modelo.Baralho, para que ela possa criar os outros tipos de baralhos
 public abstract class Baralho {
-    protected ArrayList<Carta> cartas = new ArrayList<>();
+    protected ArrayList<Carta> cartas = new ArrayList<>();//lista de cartas, visivel para as subclasses
 
     public Baralho() {
-        criarCartas();
-        embaralhar();
+        criarCartas();//instancia as cartas
+        embaralhar();//mistura a lista
     }
 
-    // Cada baralho filho vai decidir como criar suas próprias cartas
+    // Metodo sem corpo. Cada baralho filho vai decidir como criar suas próprias cartas
     protected abstract void criarCartas();
 
     public void embaralhar() {
-        Collections.shuffle(cartas);
+        Collections.shuffle(cartas);//lista aleatoria
         //Utilizamos essa função pré definida do Java importada da biblioteca java.util para reordenar as cartas de forma aleátoria
     }
 
