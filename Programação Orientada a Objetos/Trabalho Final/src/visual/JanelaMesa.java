@@ -8,6 +8,7 @@ import controle.Jogo;
 import javax.swing.*;
 import java.awt.*;
 
+/** O visual do jogo, desenha as cartas, a tela e captura as interações do usuário.  **/
 public class JanelaMesa {
     private final Jogo jogo;
     private final JFrame janela;
@@ -19,6 +20,7 @@ public class JanelaMesa {
     public JanelaMesa(Jogo jogo) {
         this.jogo = jogo;
 
+// Configurações base da janela do sistema operacional
         janela = new JFrame("Mesa de UNO");
         janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         janela.setSize(1300, 500);
@@ -135,6 +137,7 @@ public class JanelaMesa {
                 nome.contains("♣") || nome.contains("♠") ||
                 nome.contains("Joker");
 
+        // Aplicação de paleta de cores (Baralho comum vs UNO Oficial)
         if (isConvencional) {
             btnCarta.setBackground(Color.WHITE);
             if (nome.contains("♥") || nome.contains("♦") || nome.contains("+4")) {
